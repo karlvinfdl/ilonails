@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ilonails — Espace admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="../assets/script-BnlZIT6R.js"></script>
+  <link rel="stylesheet" crossorigin href="../assets/script-CCI0eYLR.css">
+</head>
+<body>
+
+<!-- ===================== CONNEXION ===================== -->
+<div id="auth-container" class="admin-login">
+  <div class="ticket">
+    <span class="tag-eyebrow">Espace admin</span>
+    <h2>Connexion</h2>
+    <p class="lead-sm">Ilonails — accès réservé à l'institut.</p>
+    <form id="loginForm" class="form-grid" onsubmit="return false;">
+      <div class="full"><label for="adminEmail">Email</label><input id="adminEmail" type="email" placeholder="admin@ilonails.fr"></div>
+      <div class="full"><label for="adminPassword">Mot de passe</label><input id="adminPassword" type="password" placeholder="********"></div>
+    </form>
+    <button id="loginBtn" class="btn" type="button" style="width:100%; margin-top:26px; padding:14px; font-size:1rem;">Se connecter</button>
+    <p id="authError" class="field-error"></p>
+  </div>
+</div>
+
+<!-- ===================== ESPACE DE GESTION ===================== -->
+<div id="admin-panel" class="admin-app" style="display:none;">
+  <div class="admin-scrim" id="scrim"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="15" fill="#C98B72"/>
+        <path d="M11 20c1-6 3-9 5-9s4 3 5 9" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="brand-name">Ilonails<small>Espace de gestion</small></div>
+    </div>
+    <nav class="side-nav">
+      <button class="active" data-view="dashboard"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>Tableau de bord</button>
+      <button data-view="rendezvous"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="14" height="13" rx="1"/><line x1="3" y1="8" x2="17" y2="8"/><line x1="7" y1="2" x2="7" y2="5"/><line x1="13" y1="2" x2="13" y2="5"/></svg>Rendez-vous</button>
+      <button data-view="prestations"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10l7-7 7 7-7 7-7-7z"/><circle cx="10" cy="10" r="1.4" fill="currentColor" stroke="none"/></svg>Prestations</button>
+      <button data-view="clients"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg>Clients</button>
+      <button data-view="messages"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 5h14v9H7l-4 3V5z"/></svg>Messages</button>
+    </nav>
+    <div class="sidebar-foot">
+      Connecté en tant que<br><strong id="adminUserLabel" style="color:#fff;">Institut</strong>
+      <button id="logoutBtn" type="button">Déconnexion</button>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <div style="display:flex; align-items:center; gap:14px; min-width:0;">
+        <button class="admin-menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+        </button>
+        <h1 id="topbarTitle">Tableau de bord</h1>
+      </div>
+      <div class="avatar">IN</div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- ===================== DASHBOARD ===================== -->
+      <div class="admin-view active" id="view-dashboard">
+        <div class="stats">
+          <div class="stat-card"><div class="label">En attente</div><div class="value mono" id="statEnAttente">–</div><div class="sub">demandes à confirmer</div></div>
+          <div class="stat-card"><div class="label">Aujourd'hui</div><div class="value mono" id="statAujourdhui">–</div><div class="sub">rendez-vous confirmés</div></div>
+          <div class="stat-card"><div class="label">À venir</div><div class="value mono" id="statAVenir">–</div><div class="sub">rendez-vous confirmés futurs</div></div>
+          <div class="stat-card"><div class="label">Terminés ce mois</div><div class="value mono" id="statTerminesMois">–</div><div class="sub">prestations réalisées</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Prochains rendez-vous</h2></div>
+          <table class="data">
+            <thead><tr><th>Client</th><th>Prestation</th><th>Date</th><th>Heure</th><th>Statut</th></tr></thead>
+            <tbody id="dashboardTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===================== RENDEZ-VOUS ===================== -->
+      <div class="admin-view" id="view-rendezvous">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Rendez-vous</h2>
+            <div class="filters-bar">
+              <select id="filterStatut">
+                <option value="">Tous les statuts</option>
+                <option value="en_attente">En attente</option>
+                <option value="confirme">Confirmé</option>
+                <option value="termine">Terminé</option>
+                <option value="annule">Annulé</option>
+              </select>
+              <button id="newRdvBtn" class="btn" type="button">+ Nouveau rendez-vous</button>
+            </div>
+          </div>
+
+          <div class="panel-body" id="rdvFormWrap" style="display:none; border-bottom:1px solid var(--a-line);">
+            <form id="rdvAdminForm" class="form-grid">
+              <input type="hidden" id="rdvId">
+
+              <div class="full">
+                <label for="rdvClientSelect">Client existant</label>
+                <select id="rdvClientSelect"><option value="">— Nouveau client —</option></select>
+              </div>
+
+              <div id="newClientFields" class="full" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px;">
+                <div><label for="rdvClientNom">Nom du client *</label><input type="text" id="rdvClientNom" placeholder="Ex : Samira Diallo"></div>
+                <div><label for="rdvClientTel">Téléphone *</label><input type="tel" id="rdvClientTel" placeholder="+33 6 xx xx xx xx"></div>
+                <div><label for="rdvClientEmail">Email (optionnel)</label><input type="email" id="rdvClientEmail"></div>
+              </div>
+
+              <div class="full">
+                <label for="rdvPrestation">Prestation *</label>
+                <select id="rdvPrestation"></select>
+              </div>
+
+              <div><label for="rdvDate">Date *</label><input type="date" id="rdvDate"></div>
+              <div><label for="rdvHeure">Heure *</label><input type="time" id="rdvHeure"></div>
+              <div>
+                <label for="rdvStatut">Statut</label>
+                <select id="rdvStatut">
+                  <option value="en_attente">En attente</option>
+                  <option value="confirme">Confirmé</option>
+                  <option value="termine">Terminé</option>
+                  <option value="annule">Annulé</option>
+                </select>
+              </div>
+
+              <div class="ticket-form-actions">
+                <button type="submit" class="btn">Enregistrer</button>
+                <button type="button" id="cancelRdvBtn" class="btn outline">Annuler</button>
+              </div>
+            </form>
+          </div>
+
+          <table class="data">
+            <thead>
+              <tr><th>Client</th><th>Prestation</th><th>Date</th><th>Heure</th><th>Statut</th><th></th></tr>
+            </thead>
+            <tbody id="rdvTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===================== PRESTATIONS ===================== -->
+      <div class="admin-view" id="view-prestations">
+        <div class="panel">
+          <div class="panel-head"><h2>Prestations affichées sur le site</h2></div>
+          <div class="panel-body" style="border-bottom:1px solid var(--a-line);">
+            <form id="prestationForm" class="form-grid">
+              <input type="hidden" id="prestationId">
+              <div><label for="prestationNom">Nom *</label><input type="text" id="prestationNom" placeholder="Ex : Pose gel classique"></div>
+              <div><label for="prestationPrix">Prix (ex : 35 €) *</label><input type="text" id="prestationPrix" placeholder="35 €"></div>
+              <div><label for="prestationDuree">Durée (minutes) *</label><input type="number" id="prestationDuree" min="5" step="5" placeholder="45"></div>
+              <div class="full"><label for="prestationDescription">Description</label><input type="text" id="prestationDescription" placeholder="Ex : Pose gel sur ongles naturels, toutes couleurs."></div>
+              <div class="ticket-form-actions"><button type="submit" class="btn">Enregistrer la prestation</button></div>
+            </form>
+          </div>
+          <table class="data">
+            <thead><tr><th>Nom</th><th>Description</th><th>Durée</th><th>Prix</th><th></th></tr></thead>
+            <tbody id="prestationsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===================== CLIENTS ===================== -->
+      <div class="admin-view" id="view-clients">
+        <div class="panel">
+          <div class="panel-head"><h2>Clients</h2></div>
+          <table class="data">
+            <thead><tr><th>Nom</th><th>Téléphone</th><th>Email</th><th></th></tr></thead>
+            <tbody id="clientsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===================== MESSAGES ===================== -->
+      <div class="admin-view" id="view-messages">
+        <div class="panel">
+          <div class="msg-layout">
+            <div class="msg-list" id="messagesClientList"></div>
+            <div class="msg-detail">
+              <div class="msg-detail-empty" id="messagesEmpty">Sélectionnez un client pour voir ses messages.</div>
+              <div id="messagesDetail" style="display:none; display:flex; flex-direction:column; min-height:0;">
+                <div class="thread-head">
+                  <div id="messagesClientName"></div>
+                  <div class="mono" style="font-size:0.76rem; color:var(--muted); font-weight:400;" id="messagesClientInfo"></div>
+                </div>
+                <div class="thread-history">
+                  <table class="data">
+                    <thead><tr><th>Prestation</th><th>Date</th><th>Heure</th><th>Statut</th></tr></thead>
+                    <tbody id="messagesHistoryBody"></tbody>
+                  </table>
+                </div>
+                <div class="thread-body" id="messagesThread"></div>
+                <form class="thread-foot" id="replyForm">
+                  <input type="text" id="replyContenu" placeholder="Écrire un message…">
+                  <button class="btn" type="submit">Envoyer</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
