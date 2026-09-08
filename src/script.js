@@ -22,8 +22,6 @@ import {
   logoutAdmin,
   onAdminAuthChange,
   signInAsVisitor,
-  uploadInspirationPhoto,
-  getInspirationPhotoUrl,
 } from "./firebase.js";
 
 /* =========================================================
@@ -233,21 +231,9 @@ if (rdvForm) {
     const prestation = prestationsDispo[Number(prestationSelect.value)];
     const date = dateInput.value;
     const heure = heureChoisieInput.value;
-    const photoFile = document.getElementById("photoInspiration").files[0];
 
     try {
       await signInAsVisitor();
-
-      // La photo est un "bonus" : si l'envoi échoue (réseau, taille...),
-      // on ne bloque pas la prise de rendez-vous pour autant.
-      let photoPath = null;
-      if (photoFile) {
-        try {
-          photoPath = await uploadInspirationPhoto(photoFile);
-        } catch (photoError) {
-          console.error("Erreur envoi photo d'inspiration :", photoError);
-        }
-      }
 
       const clientId = await addClient({ nom, telephone: tel, email });
       await reserverCreneau(date, heure);
@@ -258,13 +244,12 @@ if (rdvForm) {
         date,
         heure,
         statut: "en_attente",
-        ...(photoPath ? { photo_path: photoPath } : {}),
       });
 
       const waUrl =
         "https://wa.me/33759220835?text=" +
         encodeURIComponent(
-          `Bonjour, je souhaite un rendez-vous :\nNom: ${nom}\nPrestation: ${prestation.nom}\nLe ${date} à ${heure}`
+          `Bonjour, je souhaite un rendez-vous :\nNom: ${nom}\nPrestation: ${prestation.nom}\nLe ${date} à ${heure}\n\n(Vous pouvez joindre ici une photo de la pose souhaitée.)`
         );
 
       if (waWindow) {
@@ -492,15 +477,10 @@ async function openClientThread(clientId) {
           <td>${r.date}</td>
           <td>${r.heure}</td>
           <td>${statutPill(r.statut)}</td>
-          <td>${r.photo_path ? `<button data-photo-path="${r.photo_path}">📷</button>` : "—"}</td>
         </tr>`
         )
         .join("")
-    : `<tr><td colspan="5" style="text-align:center;">Aucun rendez-vous</td></tr>`;
-
-  messagesHistoryBody.querySelectorAll("button[data-photo-path]").forEach((btn) => {
-    btn.addEventListener("click", () => voirPhotoInspiration(btn.dataset.photoPath));
-  });
+    : `<tr><td colspan="4" style="text-align:center;">Aucun rendez-vous</td></tr>`;
 
   const messages = await getMessagesByClient(clientId);
   messagesThread.innerHTML =
@@ -581,7 +561,6 @@ function renderRendezvous() {
           <td class="row-actions">
             <button data-edit-id="${r.id}">Modifier</button>
             <button data-notify-id="${r.id}">Notifier</button>
-            ${r.photo_path ? `<button data-photo-path="${r.photo_path}">📷 Photo</button>` : ""}
           </td>
         </tr>`
         )
@@ -595,25 +574,6 @@ function renderRendezvous() {
   rdvTableBody.querySelectorAll("button[data-notify-id]").forEach((btn) => {
     btn.addEventListener("click", () => notifyClient(btn.dataset.notifyId));
   });
-
-  rdvTableBody.querySelectorAll("button[data-photo-path]").forEach((btn) => {
-    btn.addEventListener("click", () => voirPhotoInspiration(btn.dataset.photoPath));
-  });
-}
-
-// Ouvre la photo d'inspiration dans un nouvel onglet (admin uniquement,
-// cf. storage.rules). Ouvre la fenêtre tout de suite pour éviter le
-// blocage de pop-up des navigateurs sur un appel asynchrone.
-async function voirPhotoInspiration(photoPath) {
-  const win = window.open("about:blank", "_blank");
-  try {
-    const url = await getInspirationPhotoUrl(photoPath);
-    if (win) win.location.href = url;
-  } catch (error) {
-    console.error("Erreur lors de la récupération de la photo :", error);
-    if (win) win.close();
-    alert("Impossible de charger la photo.");
-  }
 }
 
 function renderDashboard() {
