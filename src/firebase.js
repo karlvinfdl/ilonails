@@ -23,6 +23,7 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Cette config est publique par nature (ce n'est pas un secret) — la
 // sécurité réelle est assurée par firestore.rules, pas par ces clés.
@@ -38,6 +39,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 const prestationsCol = collection(db, "prestations");
 const clientsCol = collection(db, "clients");
@@ -176,4 +178,23 @@ export async function addMessage(message) {
 
 export async function markMessageRead(id) {
   await updateDoc(doc(db, "messages", id), { lu: true });
+}
+
+/* =========================================================
+   PHOTOS D'INSPIRATION (Firebase Storage)
+   ========================================================= */
+
+// Envoie la photo dans Storage et renvoie son chemin (pas l'URL) : la
+// lecture reste soumise aux Storage Security Rules (admin uniquement),
+// alors qu'une URL de téléchargement, elle, contourne les règles une
+// fois générée.
+export async function uploadInspirationPhoto(file) {
+  const path = `inspirations/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${file.name}`;
+  await uploadBytes(ref(storage, path), file);
+  return path;
+}
+
+// Ne fonctionne que pour un admin authentifié (voir storage.rules).
+export async function getInspirationPhotoUrl(path) {
+  return getDownloadURL(ref(storage, path));
 }

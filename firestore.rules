@@ -51,7 +51,7 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
       allow create: if isAdmin() || (
         request.auth != null &&
-        request.resource.data.keys().hasOnly(['client_id', 'prestation_nom', 'prestation_prix', 'date', 'heure', 'statut', 'createdAt']) &&
+        request.resource.data.keys().hasOnly(['client_id', 'prestation_nom', 'prestation_prix', 'date', 'heure', 'statut', 'createdAt', 'photo_path']) &&
         request.resource.data.statut == 'en_attente' &&
         request.resource.data.client_id is string &&
         request.resource.data.date is string &&
