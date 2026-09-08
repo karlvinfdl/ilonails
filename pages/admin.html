@@ -6,8 +6,8 @@
 <title>Ilonails — Espace admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="../assets/script-DAAAWduZ.js"></script>
-  <link rel="stylesheet" crossorigin href="../assets/script-CdFBYgfV.css">
+  <script type="module" crossorigin src="../assets/script-ByacCRLi.js"></script>
+  <link rel="stylesheet" crossorigin href="../assets/script-BQckwQjr.css">
 </head>
 <body>
 
@@ -72,6 +72,24 @@
           <div class="stat-card"><div class="label">À venir</div><div class="value mono" id="statAVenir">–</div><div class="sub">rendez-vous confirmés futurs</div></div>
           <div class="stat-card"><div class="label">Terminés ce mois</div><div class="value mono" id="statTerminesMois">–</div><div class="sub">prestations réalisées</div></div>
         </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Planning de la semaine</h2>
+            <div class="week-nav">
+              <button type="button" id="weekPrev" aria-label="Semaine précédente">‹</button>
+              <span id="weekLabel" class="mono"></span>
+              <button type="button" id="weekNext" aria-label="Semaine suivante">›</button>
+            </div>
+          </div>
+          <div class="cal-scroll"><div class="cal" id="calGrid"></div></div>
+          <div class="legend">
+            <span><span class="dot" style="background:var(--wait-tx);"></span>En attente</span>
+            <span><span class="dot" style="background:var(--ok-tx);"></span>Confirmé</span>
+            <span><span class="dot" style="background:var(--done-tx);"></span>Terminé</span>
+            <span><span class="dot" style="background:var(--cancel-tx);"></span>Annulé</span>
+          </div>
+        </div>
+
         <div class="panel">
           <div class="panel-head"><h2>Prochains rendez-vous</h2></div>
           <table class="data">
