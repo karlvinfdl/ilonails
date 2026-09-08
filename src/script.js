@@ -112,6 +112,25 @@ if (menuToggle && navLinks) {
   menuToggle.addEventListener("click", () => navLinks.classList.toggle("open"));
 }
 
+// Apparition en fondu des sections au scroll (site public).
+const revealEls = document.querySelectorAll(".reveal");
+if (revealEls.length && "IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+  revealEls.forEach((el) => revealObserver.observe(el));
+} else {
+  revealEls.forEach((el) => el.classList.add("visible"));
+}
+
 
 /* =========================================================
    5) PRISE DE RENDEZ-VOUS (pages/rendez-vous.html)
@@ -521,6 +540,7 @@ async function loadRendezvous() {
   rdvCache = await getRendezvous();
   renderRendezvous();
   renderDashboard();
+  renderCalendar();
 }
 
 function renderRendezvous() {
@@ -594,6 +614,83 @@ function renderDashboard() {
 }
 
 if (filterStatut) filterStatut.addEventListener("change", renderRendezvous);
+
+/* ---------- Planning calendrier (vue semaine) ---------- */
+
+const calGrid = document.getElementById("calGrid");
+const weekLabel = document.getElementById("weekLabel");
+const weekPrevBtn = document.getElementById("weekPrev");
+const weekNextBtn = document.getElementById("weekNext");
+
+const CAL_JOURS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]; // index JS getDay() 1..6
+const CAL_HEURES = [9, 10, 11, 12, 13, 14, 15, 16, 17];
+let weekOffset = 0;
+
+function toLocalDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function getWeekMonday(offset) {
+  const now = new Date();
+  const jour = now.getDay() === 0 ? 7 : now.getDay(); // dimanche -> 7
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (jour - 1) + offset * 7);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+function renderCalendar() {
+  if (!calGrid) return;
+
+  const monday = getWeekMonday(weekOffset);
+  const weekDates = CAL_JOURS.map((_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+
+  const fmt = (d) => d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  weekLabel.textContent = `${fmt(weekDates[0])} – ${fmt(weekDates[5])}`;
+
+  let html = `<div class="head-cell"></div>`;
+  weekDates.forEach((d, i) => {
+    const ferme = !HORAIRES_PAR_JOUR[d.getDay()];
+    html += `<div class="head-cell ${ferme ? "closed" : ""}">${CAL_JOURS[i]} ${d.getDate()}</div>`;
+  });
+
+  CAL_HEURES.forEach((h) => {
+    html += `<div class="time-cell">${h}h</div>`;
+    weekDates.forEach((d) => {
+      const ferme = !HORAIRES_PAR_JOUR[d.getDay()];
+      const dateStr = toLocalDateStr(d);
+      const rdvs = rdvCache.filter((r) => r.date === dateStr && parseInt(r.heure.split(":")[0], 10) === h);
+
+      const blocs = rdvs
+        .map(
+          (r) => `
+          <div class="appt ${r.statut}" data-rdv-id="${r.id}">
+            <span>${clientNom(r.client_id)}</span>
+            <span class="t">${r.heure} · ${r.prestation_nom}</span>
+          </div>`
+        )
+        .join("");
+
+      html += `<div class="day-cell ${ferme ? "closed" : ""}">${blocs}</div>`;
+    });
+  });
+
+  calGrid.innerHTML = html;
+
+  calGrid.querySelectorAll(".appt").forEach((el) => {
+    el.addEventListener("click", () => {
+      activateView("rendezvous");
+      editRendezvous(el.dataset.rdvId);
+    });
+  });
+}
+
+if (weekPrevBtn) weekPrevBtn.addEventListener("click", () => { weekOffset -= 1; renderCalendar(); });
+if (weekNextBtn) weekNextBtn.addEventListener("click", () => { weekOffset += 1; renderCalendar(); });
 
 function resetRdvForm() {
   rdvAdminForm.reset();

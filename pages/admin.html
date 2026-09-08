@@ -72,6 +72,24 @@
           <div class="stat-card"><div class="label">Terminés ce mois</div><div class="value mono" id="statTerminesMois">–</div><div class="sub">prestations réalisées</div></div>
         </div>
         <div class="panel">
+          <div class="panel-head">
+            <h2>Planning de la semaine</h2>
+            <div class="week-nav">
+              <button type="button" id="weekPrev" aria-label="Semaine précédente">‹</button>
+              <span id="weekLabel" class="mono"></span>
+              <button type="button" id="weekNext" aria-label="Semaine suivante">›</button>
+            </div>
+          </div>
+          <div class="cal-scroll"><div class="cal" id="calGrid"></div></div>
+          <div class="legend">
+            <span><span class="dot" style="background:var(--wait-tx);"></span>En attente</span>
+            <span><span class="dot" style="background:var(--ok-tx);"></span>Confirmé</span>
+            <span><span class="dot" style="background:var(--done-tx);"></span>Terminé</span>
+            <span><span class="dot" style="background:var(--cancel-tx);"></span>Annulé</span>
+          </div>
+        </div>
+
+        <div class="panel">
           <div class="panel-head"><h2>Prochains rendez-vous</h2></div>
           <table class="data">
             <thead><tr><th>Client</th><th>Prestation</th><th>Date</th><th>Heure</th><th>Statut</th></tr></thead>
