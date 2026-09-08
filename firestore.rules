@@ -1,0 +1,88 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Prestations : visibles publiquement, modifiables seulement par l'admin.
+    match /prestations/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Créneaux : juste un marqueur "date_heure -> pris", sans donnée
+    // personnelle, pour permettre au formulaire public de savoir quels
+    // horaires sont déjà réservés sans exposer l'identité des clients.
+    // L'ID du document est "AAAA-MM-JJ_HH:MM", ce qui empêche deux
+    // réservations simultanées sur le même créneau.
+    match /creneaux/{id} {
+      allow read: if true;
+      allow create: if isAdmin() || (
+        request.auth != null &&
+        request.resource.data.keys().hasOnly(['date', 'heure']) &&
+        request.resource.data.date is string &&
+        request.resource.data.heure is string
+      );
+      allow update, delete: if isAdmin();
+    }
+
+    // Clients : lecture/modification/suppression réservées à l'admin.
+    // Création autorisée pour un visiteur authentifié (auth anonyme incluse),
+    // uniquement avec les champs attendus par le formulaire de prise de RDV.
+    match /clients/{id} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isAdmin() || (
+        request.auth != null &&
+        request.resource.data.keys().hasOnly(['nom', 'telephone', 'email']) &&
+        request.resource.data.nom is string &&
+        request.resource.data.telephone is string
+      );
+    }
+
+    // Rendez-vous : jamais accessibles publiquement (contiennent une
+    // référence client). Création autorisée pour un visiteur authentifié
+    // avec un statut fixé à "en_attente" (le client ne peut pas
+    // s'auto-confirmer) ; lecture/modification/suppression réservées à l'admin.
+    match /rendezvous/{id} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isAdmin() || (
+        request.auth != null &&
+        request.resource.data.keys().hasOnly(['client_id', 'prestation_nom', 'prestation_prix', 'date', 'heure', 'statut', 'createdAt']) &&
+        request.resource.data.statut == 'en_attente' &&
+        request.resource.data.client_id is string &&
+        request.resource.data.date is string &&
+        request.resource.data.heure is string
+      );
+    }
+
+    // Messages : lecture/modification/suppression réservées à l'admin.
+    // Création autorisée pour un visiteur authentifié, uniquement en tant que
+    // message entrant non lu (empêche de se faire passer pour l'institut).
+    match /messages/{id} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isAdmin() || (
+        request.auth != null &&
+        request.resource.data.keys().hasOnly(['client_id', 'contenu', 'sens', 'lu', 'date']) &&
+        request.resource.data.sens == 'client_vers_institut' &&
+        request.resource.data.lu == false &&
+        request.resource.data.client_id is string &&
+        request.resource.data.contenu is string
+      );
+    }
+
+    // Allow-list des comptes admin : gérée à la main dans la console Firebase,
+    // jamais lue ni modifiée depuis le client.
+    match /admins/{uid} {
+      allow read, write: if false;
+    }
+
+    // Deny-by-default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

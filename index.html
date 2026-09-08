@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ilonails — Prothésie ongulaire à Trieux</title>
+<meta name="description" content="Ilonails, institut de prothésie ongulaire à Trieux (54). Pose gel, nail art, manucure, pédicure — réservez votre créneau en ligne.">
+<meta name="theme-color" content="#6B4A3A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav">
+    <a class="brand" href="#top">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="15" fill="#C98B72"/>
+        <path d="M11 20c1-6 3-9 5-9s4 3 5 9" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">Ilonails<small>Prothésie ongulaire · Trieux</small></span>
+    </a>
+    <nav class="links" id="navLinks">
+      <a href="#services">Prestations</a>
+      <a href="#horaires">Horaires &amp; accès</a>
+      <a href="./pages/rendez-vous.html" class="btn">Réserver</a>
+    </nav>
+    <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">☰</button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="tag-eyebrow">Institut de prothésie ongulaire — Trieux</span>
+        <h1>Ilonails : l'art jusqu'au bout des doigts.</h1>
+        <p class="lead">Pose gel, nail art, manucure, pédicure — chaque prestation est pensée sur mesure. Réservez votre créneau en quelques clics.</p>
+        <div class="hero-ctas">
+          <a href="./pages/rendez-vous.html" class="btn">Réserver un créneau</a>
+          <a href="#services" class="btn outline">Voir les prestations</a>
+        </div>
+      </div>
+      <div class="hero-placeholder">Photo de l'institut<br>à venir</div>
+    </div>
+  </section>
+
+  <section class="section" id="services">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Services &amp; tarifs</h2>
+        <p>Des prestations haut de gamme en matière de manucure et de soin des ongles.</p>
+      </div>
+      <div id="services-container" class="swatch-grid"></div>
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="wrap">
+      <div class="ambiance">
+        <div class="hero-placeholder" style="border-radius:28px; aspect-ratio:auto; height:100%;">Photo de l'ambiance<br>de l'institut à venir</div>
+      </div>
+      <p class="caption">Créez votre moment de bien-être chez Ilonails</p>
+    </div>
+  </section>
+
+  <section class="section" id="horaires">
+    <div class="wrap band-grid">
+      <div>
+        <h2 style="font-size:1.9rem; margin-bottom:20px;">Horaires &amp; accès</h2>
+        <table class="hours">
+          <tr><td>Lundi</td><td>Fermé</td></tr>
+          <tr><td>Mardi</td><td>9h–18h</td></tr>
+          <tr><td>Mercredi</td><td>9h–18h</td></tr>
+          <tr><td>Jeudi</td><td>9h–18h</td></tr>
+          <tr><td>Vendredi</td><td>9h–18h</td></tr>
+          <tr><td>Samedi</td><td>9h–17h</td></tr>
+          <tr class="closed"><td>Dimanche</td><td>Fermé</td></tr>
+        </table>
+        <div class="addr-block">
+          <strong>Ilonails</strong>
+          28 Avenue de la Libération<br>54170 Trieux
+        </div>
+      </div>
+      <div class="map-embed">
+        <iframe
+          width="100%"
+          height="260"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.google.com/maps?q=28+Avenue+de+la+Lib%C3%A9ration,+54170+Trieux&output=embed">
+        </iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="access-banner">
+    <div class="wrap">
+      <h2>Nos prestations sont accessibles aux personnes à mobilité réduite et adaptées à tous les clients.</h2>
+      <div class="access-contacts">
+        <div>
+          <strong>Téléphone</strong>
+          <a href="tel:+33759220835">07 59 22 08 35</a>
+        </div>
+        <div>
+          <strong>WhatsApp</strong>
+          <a href="https://wa.me/33759220835">Nous écrire</a>
+        </div>
+        <div>
+          <strong>Adresse</strong>
+          28 Avenue de la Libération, 54170 Trieux
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <span>© <span id="year"></span> Ilonails — 28 Avenue de la Libération, 54170 Trieux</span>
+    <span><a href="./pages/mentions-legales.html">Mentions légales</a> · <a href="./pages/confidentialite.html">Confidentialité</a></span>
+  </div>
+</footer>
+
+<script type="module" src="./src/script.js"></script>
+</body>
+</html>

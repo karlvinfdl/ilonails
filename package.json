@@ -1,0 +1,24 @@
+{
+  "name": "ilonails",
+  "version": "1.0.0",
+  "description": "Site officiel d'Ilonails, institut de prothésie ongulaire à Trieux : prise de rendez-vous en ligne et suivi des prestations.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "author": "",
+  "license": "MIT",
+  "keywords": [
+    "ongles",
+    "prothesie-ongulaire",
+    "manucure",
+    "nail-art",
+    "ilonails",
+    "trieux"
+  ],
+  "dependencies": {
+    "vite": "^5.0.0",
+    "firebase": "^12.6.0"
+  }
+}
