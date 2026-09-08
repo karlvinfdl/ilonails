@@ -234,6 +234,8 @@ footer.site-footer{ padding:34px 0 40px; font-size:0.86rem; color:var(--muted); 
   .ticket{ padding:20px; }
   .form-grid{ gap:14px; }
   .footer-grid{ flex-direction:column; align-items:flex-start; }
+  .slot-grid{ grid-template-columns:repeat(auto-fill,minmax(70px,1fr)); }
+  .slot-btn{ padding:13px 4px; }
 }
 
 /* =========================================================================
