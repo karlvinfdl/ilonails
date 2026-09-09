@@ -391,20 +391,30 @@ async function initAdminData() {
   // Écoute en temps réel : toute réservation faite par une cliente (ou
   // modification faite par l'admin depuis un autre appareil) apparaît
   // immédiatement, sans avoir à recharger la page.
-  unsubscribeClients = listenClients((clients) => {
-    clientsCache = clients;
-    renderClients();
-    renderRendezvous();
-    renderDashboard();
-    renderCalendar();
-  });
+  unsubscribeClients = listenClients(
+    (clients) => {
+      clientsCache = clients;
+      renderClients();
+      renderRendezvous();
+      renderDashboard();
+      renderCalendar();
+    },
+    () => {
+      clientsTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Erreur de chargement des clients. Rechargez la page.</td></tr>`;
+    }
+  );
 
-  unsubscribeRendezvous = listenRendezvous((rdvs) => {
-    rdvCache = rdvs;
-    renderRendezvous();
-    renderDashboard();
-    renderCalendar();
-  });
+  unsubscribeRendezvous = listenRendezvous(
+    (rdvs) => {
+      rdvCache = rdvs;
+      renderRendezvous();
+      renderDashboard();
+      renderCalendar();
+    },
+    () => {
+      rdvTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Erreur de chargement des rendez-vous. Rechargez la page.</td></tr>`;
+    }
+  );
 }
 
 function stopAdminListeners() {

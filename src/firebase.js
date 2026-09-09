@@ -12,7 +12,6 @@ import {
   setDoc,
   doc,
   serverTimestamp,
-  orderBy,
   query,
   where,
   onSnapshot,
@@ -95,10 +94,15 @@ export async function updatePrestation(id, data) {
 
 // Écoute en temps réel, même principe que listenRendezvous : un nouveau
 // client créé via le formulaire public apparaît immédiatement côté admin.
-export function listenClients(callback) {
-  return onSnapshot(clientsCol, (snapshot) => {
-    callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
-  });
+export function listenClients(callback, onError) {
+  return onSnapshot(
+    clientsCol,
+    (snapshot) => callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))),
+    (error) => {
+      console.error("Erreur d'écoute clients :", error);
+      if (onError) onError(error);
+    }
+  );
 }
 
 export async function addClient(client) {
@@ -141,11 +145,23 @@ export async function libererCreneau(date, heure) {
 // puis à chaque changement (nouvelle réservation cliente, modification admin,
 // etc.), sans qu'il soit nécessaire de recharger la page. Renvoie une
 // fonction pour arrêter l'écoute (à appeler à la déconnexion admin).
-export function listenRendezvous(callback) {
-  const q = query(rendezvousCol, orderBy("date", "asc"), orderBy("heure", "asc"));
-  return onSnapshot(q, (snapshot) => {
-    callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
-  });
+// Pas de tri composé (date + heure) côté Firestore : ça nécessiterait un
+// index composite à créer manuellement dans la console, et la requête
+// échouerait silencieusement tant qu'il n'existe pas. On trie côté client
+// à la place — aucun index particulier requis.
+export function listenRendezvous(callback, onError) {
+  return onSnapshot(
+    rendezvousCol,
+    (snapshot) => {
+      const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      list.sort((a, b) => (a.date === b.date ? a.heure.localeCompare(b.heure) : a.date.localeCompare(b.date)));
+      callback(list);
+    },
+    (error) => {
+      console.error("Erreur d'écoute rendez-vous :", error);
+      if (onError) onError(error);
+    }
+  );
 }
 
 export async function getRendezvousByClient(clientId) {
@@ -169,11 +185,13 @@ export async function updateRendezvous(id, data) {
    MESSAGES
    ========================================================= */
 
+// Tri fait côté client (pas de orderBy() combiné au where() ici) pour
+// éviter de dépendre d'un index composite Firestore.
 export async function getMessagesByClient(clientId) {
-  const snapshot = await getDocs(
-    query(messagesCol, where("client_id", "==", clientId), orderBy("date", "asc"))
-  );
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const snapshot = await getDocs(query(messagesCol, where("client_id", "==", clientId)));
+  const messages = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  messages.sort((a, b) => (a.date?.toMillis?.() || 0) - (b.date?.toMillis?.() || 0));
+  return messages;
 }
 
 export async function addMessage(message) {
