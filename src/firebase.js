@@ -181,6 +181,10 @@ export async function updateRendezvous(id, data) {
   await updateDoc(doc(db, "rendezvous", id), data);
 }
 
+export async function deleteRendezvous(id) {
+  await deleteDoc(doc(db, "rendezvous", id));
+}
+
 /* =========================================================
    MESSAGES
    ========================================================= */

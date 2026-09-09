@@ -15,6 +15,7 @@ import {
   getRendezvousByClient,
   addRendezvous,
   updateRendezvous,
+  deleteRendezvous,
   getMessagesByClient,
   addMessage,
   markMessageRead,
@@ -595,6 +596,7 @@ function renderRendezvous() {
           <td class="row-actions">
             <button data-edit-id="${r.id}">Modifier</button>
             <button data-notify-id="${r.id}">Notifier</button>
+            <button data-delete-id="${r.id}">Supprimer</button>
           </td>
         </tr>`
         )
@@ -608,6 +610,22 @@ function renderRendezvous() {
   rdvTableBody.querySelectorAll("button[data-notify-id]").forEach((btn) => {
     btn.addEventListener("click", () => notifyClient(btn.dataset.notifyId));
   });
+
+  rdvTableBody.querySelectorAll("button[data-delete-id]").forEach((btn) => {
+    btn.addEventListener("click", () => supprimerRendezvous(btn.dataset.deleteId));
+  });
+}
+
+async function supprimerRendezvous(id) {
+  const rdv = rdvCache.find((r) => r.id === id);
+  if (!rdv) return;
+
+  if (!confirm(`Supprimer définitivement le rendez-vous de ${clientNom(rdv.client_id)} (${rdv.date} ${rdv.heure}) ?`)) {
+    return;
+  }
+
+  await deleteRendezvous(id);
+  await libererCreneau(rdv.date, rdv.heure).catch(() => {});
 }
 
 function renderDashboard() {
