@@ -6,12 +6,12 @@ import {
   getPrestations,
   addPrestation,
   updatePrestation,
-  getClients,
+  listenClients,
   addClient,
   getCreneauxPris,
   reserverCreneau,
   libererCreneau,
-  getRendezvous,
+  listenRendezvous,
   getRendezvousByClient,
   addRendezvous,
   updateRendezvous,
@@ -311,6 +311,7 @@ if (adminPanel && authBox) {
     } else {
       authBox.style.display = "flex";
       adminPanel.style.display = "none";
+      stopAdminListeners();
     }
   });
 }
@@ -367,6 +368,8 @@ if (adminMenuToggle && sidebar && scrim) {
 let clientsCache = [];
 let rdvCache = [];
 let prestationsCache = [];
+let unsubscribeClients = null;
+let unsubscribeRendezvous = null;
 
 function clientNom(clientId) {
   const client = clientsCache.find((c) => c.id === clientId);
@@ -382,8 +385,37 @@ function statutPill(statut) {
 }
 
 async function initAdminData() {
-  await Promise.all([loadClients(), loadPrestations()]);
-  await loadRendezvous();
+  await loadPrestations();
+  stopAdminListeners();
+
+  // Écoute en temps réel : toute réservation faite par une cliente (ou
+  // modification faite par l'admin depuis un autre appareil) apparaît
+  // immédiatement, sans avoir à recharger la page.
+  unsubscribeClients = listenClients((clients) => {
+    clientsCache = clients;
+    renderClients();
+    renderRendezvous();
+    renderDashboard();
+    renderCalendar();
+  });
+
+  unsubscribeRendezvous = listenRendezvous((rdvs) => {
+    rdvCache = rdvs;
+    renderRendezvous();
+    renderDashboard();
+    renderCalendar();
+  });
+}
+
+function stopAdminListeners() {
+  if (unsubscribeClients) {
+    unsubscribeClients();
+    unsubscribeClients = null;
+  }
+  if (unsubscribeRendezvous) {
+    unsubscribeRendezvous();
+    unsubscribeRendezvous = null;
+  }
 }
 
 /* ---------- Clients ---------- */
@@ -392,9 +424,7 @@ const rdvClientSelect = document.getElementById("rdvClientSelect");
 const clientsTableBody = document.getElementById("clientsTableBody");
 const messagesClientList = document.getElementById("messagesClientList");
 
-async function loadClients() {
-  clientsCache = await getClients();
-
+function renderClients() {
   rdvClientSelect.innerHTML = '<option value="">— Nouveau client —</option>';
   clientsCache.forEach((c) => {
     const opt = document.createElement("option");
@@ -438,6 +468,7 @@ async function loadClients() {
 
   messagesClientList.querySelectorAll("button[data-client-id]").forEach((btn) => {
     btn.addEventListener("click", () => openClientThread(btn.dataset.clientId));
+    if (btn.dataset.clientId === currentClientId) btn.classList.add("active");
   });
 }
 
@@ -536,13 +567,6 @@ const statEnAttente = document.getElementById("statEnAttente");
 const statAujourdhui = document.getElementById("statAujourdhui");
 const statAVenir = document.getElementById("statAVenir");
 const statTerminesMois = document.getElementById("statTerminesMois");
-
-async function loadRendezvous() {
-  rdvCache = await getRendezvous();
-  renderRendezvous();
-  renderDashboard();
-  renderCalendar();
-}
 
 function renderRendezvous() {
   const statut = filterStatut.value;
@@ -784,8 +808,9 @@ if (rdvAdminForm) {
       await reserverCreneau(date, heure).catch(() => {});
     }
 
+    // Pas besoin de recharger manuellement : listenClients/listenRendezvous
+    // (temps réel) répercutent ce changement tout seuls.
     rdvFormWrap.style.display = "none";
-    await Promise.all([loadClients(), loadRendezvous()]);
   });
 }
 

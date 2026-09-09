@@ -15,6 +15,7 @@ import {
   orderBy,
   query,
   where,
+  onSnapshot,
 } from "firebase/firestore";
 import {
   getAuth,
@@ -92,9 +93,12 @@ export async function updatePrestation(id, data) {
    CLIENTS
    ========================================================= */
 
-export async function getClients() {
-  const snapshot = await getDocs(clientsCol);
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+// Écoute en temps réel, même principe que listenRendezvous : un nouveau
+// client créé via le formulaire public apparaît immédiatement côté admin.
+export function listenClients(callback) {
+  return onSnapshot(clientsCol, (snapshot) => {
+    callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+  });
 }
 
 export async function addClient(client) {
@@ -133,9 +137,15 @@ export async function libererCreneau(date, heure) {
    RENDEZ-VOUS
    ========================================================= */
 
-export async function getRendezvous() {
-  const snapshot = await getDocs(query(rendezvousCol, orderBy("date", "asc"), orderBy("heure", "asc")));
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+// Écoute en temps réel : callback(rendezvousArray) est appelé immédiatement,
+// puis à chaque changement (nouvelle réservation cliente, modification admin,
+// etc.), sans qu'il soit nécessaire de recharger la page. Renvoie une
+// fonction pour arrêter l'écoute (à appeler à la déconnexion admin).
+export function listenRendezvous(callback) {
+  const q = query(rendezvousCol, orderBy("date", "asc"), orderBy("heure", "asc"));
+  return onSnapshot(q, (snapshot) => {
+    callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+  });
 }
 
 export async function getRendezvousByClient(clientId) {
