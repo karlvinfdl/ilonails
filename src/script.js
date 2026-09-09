@@ -247,7 +247,7 @@ if (rdvForm) {
       });
 
       const waUrl =
-        "https://wa.me/33759220835?text=" +
+        "https://wa.me/596696114806?text=" +
         encodeURIComponent(
           `Bonjour, je souhaite un rendez-vous :\nNom: ${nom}\nPrestation: ${prestation.nom}\nLe ${date} à ${heure}\n\n(Vous pouvez joindre ici une photo de la pose souhaitée.)`
         );
