@@ -38,7 +38,7 @@ const FALLBACK_PRESTATIONS = [
   { nom: "Pédicure", description: "Soin complet des pieds.", prix: "35 €", duree: 45 },
 ];
 
-const SWATCH_ICON = `<svg viewBox="0 0 34 34" fill="none"><path d="M11 24c1-9 3-15 6-15s5 6 6 15" stroke="#C98B72" stroke-width="1.6" stroke-linecap="round" fill="none"/><circle cx="17" cy="8" r="2.4" fill="#C98B72"/></svg>`;
+const SWATCH_ICON = `<svg viewBox="0 0 34 34" fill="none"><path d="M11 24c1-9 3-15 6-15s5 6 6 15" stroke="#FF1F8C" stroke-width="1.6" stroke-linecap="round" fill="none"/><circle cx="17" cy="8" r="2.4" fill="#FF1F8C"/></svg>`;
 
 // Horaires par jour (0 = dimanche ... 6 = samedi), [heure ouverture, heure fermeture[.
 const HORAIRES_PAR_JOUR = {
@@ -950,6 +950,82 @@ if (prestationForm) {
     prestationForm.reset();
     document.getElementById("prestationId").value = "";
     await loadPrestations();
+  });
+}
+
+/* =========================================================
+   9) EFFETS Y2K "BAD BITCH" — bulles flottantes, étincelles au
+      curseur, pop au clic sur les boutons (site public uniquement)
+   ========================================================= */
+
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+if (document.body.classList.contains("page-public") && !prefersReducedMotion) {
+  // ---- Bulles flottantes en fond ----
+  const bubbleField = document.createElement("div");
+  bubbleField.id = "bubbleField";
+  bubbleField.setAttribute("aria-hidden", "true");
+  document.body.appendChild(bubbleField);
+
+  function spawnBubble() {
+    const bubble = document.createElement("span");
+    bubble.className = "js-bubble";
+    const size = 10 + Math.random() * 34;
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.left = `${Math.random() * 100}vw`;
+    bubble.style.setProperty("--drift", `${(Math.random() - 0.5) * 120}px`);
+    const duration = 9 + Math.random() * 9;
+    bubble.style.animationDuration = `${duration}s`;
+    bubbleField.appendChild(bubble);
+    setTimeout(() => bubble.remove(), duration * 1000);
+  }
+
+  for (let i = 0; i < 10; i++) {
+    setTimeout(spawnBubble, i * 900);
+  }
+  setInterval(spawnBubble, 1500);
+
+  // ---- Étincelles qui suivent le curseur ----
+  const SPARKLES = ["✨", "💖", "⭐"];
+  let lastSparkle = 0;
+
+  function spawnSparkle(x, y) {
+    const now = Date.now();
+    if (now - lastSparkle < 90) return;
+    lastSparkle = now;
+
+    const sparkle = document.createElement("span");
+    sparkle.className = "js-sparkle";
+    sparkle.textContent = SPARKLES[Math.floor(Math.random() * SPARKLES.length)];
+    sparkle.style.left = `${x}px`;
+    sparkle.style.top = `${y}px`;
+    document.body.appendChild(sparkle);
+    setTimeout(() => sparkle.remove(), 700);
+  }
+
+  window.addEventListener("pointermove", (e) => spawnSparkle(e.clientX, e.clientY));
+
+  // ---- Pop de paillettes au clic sur les boutons ----
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn, .slot-btn, .sticker-badge");
+    if (!btn) return;
+
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    for (let i = 0; i < 8; i++) {
+      const pop = document.createElement("span");
+      pop.className = "js-sparkle";
+      pop.textContent = Math.random() > 0.5 ? "✨" : "💖";
+      const angle = (Math.PI * 2 * i) / 8;
+      const dist = 30 + Math.random() * 20;
+      pop.style.left = `${cx + Math.cos(angle) * dist}px`;
+      pop.style.top = `${cy + Math.sin(angle) * dist}px`;
+      document.body.appendChild(pop);
+      setTimeout(() => pop.remove(), 700);
+    }
   });
 }
 
