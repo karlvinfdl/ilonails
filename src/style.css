@@ -124,6 +124,12 @@ header.site-header{
   max-width:1140px; margin:0 auto;
 }
 .brand{ display:flex; align-items:center; gap:12px; text-decoration:none; }
+.brand-logo{
+  width:40px; height:40px; flex:none; border-radius:50%;
+  background:#fff; border:2px solid var(--brown); padding:3px;
+  object-fit:contain; box-shadow:2px 2px 0 var(--brown-deep);
+}
+.sidebar .brand-logo{ width:34px; height:34px; }
 .brand-name{ font-family:'Rubik Bubbles', cursive; font-weight:400; font-size:1.15rem; line-height:1; color:#fff; }
 .brand-name small{
   display:block; font-family:'Baloo 2',sans-serif; font-size:0.6rem;
